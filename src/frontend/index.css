@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Space/Crypto Theme - Yellow/Orange Primary Colors */
+    --background: oklch(0.15 0.02 264); /* Very dark blue-purple space background */
+    --foreground: oklch(0.98 0.01 106); /* Near white for text */
+
+    --card: oklch(0.18 0.03 264); /* Slightly lighter than background */
+    --card-foreground: oklch(0.98 0.01 106);
+
+    --popover: oklch(0.18 0.03 264);
+    --popover-foreground: oklch(0.98 0.01 106);
+
+    --primary: oklch(0.75 0.18 85); /* Bright yellow-orange */
+    --primary-foreground: oklch(0.15 0.02 264); /* Dark text on bright background */
+
+    --secondary: oklch(0.25 0.04 264); /* Muted purple-blue */
+    --secondary-foreground: oklch(0.98 0.01 106);
+
+    --muted: oklch(0.25 0.04 264);
+    --muted-foreground: oklch(0.65 0.02 264);
+
+    --accent: oklch(0.65 0.2 45); /* Orange accent */
+    --accent-foreground: oklch(0.15 0.02 264);
+
+    --destructive: oklch(0.55 0.22 25); /* Red for errors */
+    --destructive-foreground: oklch(0.98 0.01 106);
+
+    --border: oklch(0.3 0.04 264); /* Subtle borders */
+    --input: oklch(0.3 0.04 264);
+    --ring: oklch(0.75 0.18 85); /* Yellow-orange focus ring */
+
+    --radius: 0.5rem;
+
+    --success: oklch(0.65 0.18 145); /* Green for success */
+    --warning: oklch(0.7 0.18 65); /* Yellow for warnings */
+  }
+
+  .dark {
+    /* Dark mode uses same colors as this is a space-themed game */
+    --background: oklch(0.15 0.02 264);
+    --foreground: oklch(0.98 0.01 106);
+
+    --card: oklch(0.18 0.03 264);
+    --card-foreground: oklch(0.98 0.01 106);
+
+    --popover: oklch(0.18 0.03 264);
+    --popover-foreground: oklch(0.98 0.01 106);
+
+    --primary: oklch(0.75 0.18 85);
+    --primary-foreground: oklch(0.15 0.02 264);
+
+    --secondary: oklch(0.25 0.04 264);
+    --secondary-foreground: oklch(0.98 0.01 106);
+
+    --muted: oklch(0.25 0.04 264);
+    --muted-foreground: oklch(0.65 0.02 264);
+
+    --accent: oklch(0.65 0.2 45);
+    --accent-foreground: oklch(0.15 0.02 264);
+
+    --destructive: oklch(0.55 0.22 25);
+    --destructive-foreground: oklch(0.98 0.01 106);
+
+    --border: oklch(0.3 0.04 264);
+    --input: oklch(0.3 0.04 264);
+    --ring: oklch(0.75 0.18 85);
+
+    --success: oklch(0.65 0.18 145);
+    --warning: oklch(0.7 0.18 65);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Countdown animation */
+@keyframes countdownPop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-countdown-pop {
+  animation: countdownPop 0.5s ease-out;
+}
+
+/* Fade in animation for leaderboards */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* Slow pulse for current user highlight */
+@keyframes pulseSlow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 2s ease-in-out infinite;
+}
