@@ -15,6 +15,7 @@ import {
   Crown,
   Loader2,
   Medal,
+  MessageCircle,
   Pencil,
   Rocket,
   Trophy,
@@ -36,6 +37,7 @@ interface StartScreenProps {
   isMuted: boolean;
   onToggleMute: () => void;
   onNavigateLeaderboard: () => void;
+  onNavigateChat: () => void;
 }
 
 export default function StartScreen({
@@ -43,6 +45,7 @@ export default function StartScreen({
   isMuted,
   onToggleMute,
   onNavigateLeaderboard,
+  onNavigateChat,
 }: StartScreenProps) {
   const [showItemsList, setShowItemsList] = useState(false);
   const [showChangeDialog, setShowChangeDialog] = useState(false);
@@ -191,6 +194,16 @@ export default function StartScreen({
           LEADERBOARDS
         </Button>
 
+        <Button
+          onClick={onNavigateChat}
+          size="lg"
+          data-ocid="start.chat_button"
+          className="text-xl sm:text-2xl px-8 sm:px-12 py-6 sm:py-8 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black font-black rounded-full shadow-2xl transform hover:scale-110 transition-all duration-200 border-4 border-yellow-300"
+        >
+          <MessageCircle className="mr-2 sm:mr-3 h-6 w-6 sm:h-8 sm:w-8" />
+          CHAT
+        </Button>
+
         {/* Hall of Fame — Top 5 All-Time */}
         <div className="w-full max-w-sm mt-2">
           <div className="bg-gradient-to-br from-slate-800/80 to-purple-900/80 backdrop-blur-lg border-2 border-yellow-400/40 rounded-2xl shadow-xl overflow-hidden">
@@ -233,6 +246,17 @@ export default function StartScreen({
             </div>
           </div>
         </div>
+
+        {/* Explore More Bitty on ICP */}
+        <a
+          href="https://bittyonicp.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-ocid="start.link"
+          className="text-2xl sm:text-3xl font-black text-yellow-400 tracking-wider drop-shadow-[0_0_20px_rgba(250,204,21,0.8)] hover:text-yellow-300 hover:drop-shadow-[0_0_30px_rgba(250,204,21,1)] transition-all duration-200 underline underline-offset-4 decoration-yellow-400/60 hover:decoration-yellow-300 text-center mt-2"
+        >
+          EXPLORE MORE BITTY ON ICP
+        </a>
       </div>
 
       {/* Rules and Items Fullscreen Pop-up */}

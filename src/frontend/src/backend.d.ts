@@ -22,11 +22,20 @@ export enum UserRole {
     guest = "guest"
 }
 export interface backendInterface {
+    addReaction(messageId: bigint, emoji: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     changeNickname(newNickname: string): Promise<void>;
+    deleteChatMessage(id: bigint): Promise<void>;
     getCallerNickname(): Promise<string | null>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    getChatMessages(): Promise<Array<{
+        id: bigint;
+        authorNickname: string;
+        text: string;
+        timestamp: Time;
+        reactions: Array<[string, bigint]>;
+    }>>;
     getLastWeeklyReset(): Promise<Time | null>;
     getLeaderboard(): Promise<Array<LeaderboardEntry>>;
     getTopScores(): Promise<Array<LeaderboardEntry>>;
@@ -35,6 +44,9 @@ export interface backendInterface {
     getWeeklyTopScores(): Promise<Array<LeaderboardEntry>>;
     initializeAccessControl(): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
+    moderatorDeleteMessage(id: bigint, password: string): Promise<void>;
+    postChatMessage(text: string): Promise<void>;
+    removeReaction(messageId: bigint, emoji: string): Promise<void>;
     resetWeeklyScores(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     saveNickname(nickname: string): Promise<void>;

@@ -1,12 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { useInternetIdentity } from "./hooks/useInternetIdentity";
+import ChatPage from "./pages/ChatPage";
 import GameOverScreen from "./pages/GameOverScreen";
 import GameScreen from "./pages/GameScreen";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import StartScreen from "./pages/StartScreen";
 import { MusicSynth } from "./utils/musicSynth";
 
-type GameState = "start" | "countdown" | "playing" | "gameOver" | "leaderboard";
+type GameState =
+  | "start"
+  | "countdown"
+  | "playing"
+  | "gameOver"
+  | "leaderboard"
+  | "chat";
 
 function App() {
   const [gameState, setGameState] = useState<GameState>("start");
@@ -41,7 +48,8 @@ function App() {
     } else if (
       gameState === "gameOver" ||
       gameState === "start" ||
-      gameState === "leaderboard"
+      gameState === "leaderboard" ||
+      gameState === "chat"
     ) {
       synthRef.current?.stop();
     }
@@ -75,6 +83,10 @@ function App() {
     setGameState("leaderboard");
   };
 
+  const handleNavigateChat = () => {
+    setGameState("chat");
+  };
+
   const toggleMute = () => {
     setIsMuted((prev) => !prev);
   };
@@ -87,11 +99,13 @@ function App() {
           isMuted={isMuted}
           onToggleMute={toggleMute}
           onNavigateLeaderboard={handleNavigateLeaderboard}
+          onNavigateChat={handleNavigateChat}
         />
       )}
       {gameState === "leaderboard" && (
         <LeaderboardPage onBack={handleBackToStart} />
       )}
+      {gameState === "chat" && <ChatPage onBack={handleBackToStart} />}
       {gameState === "countdown" && (
         <GameScreen
           onGameOver={handleGameOver}

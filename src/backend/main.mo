@@ -8,7 +8,11 @@ import AccessControl "authorization/access-control";
 import Nat "mo:core/Nat";
 import MixinStorage "blob-storage/Mixin";
 import Text "mo:core/Text";
+import List "mo:core/List";
+import Int "mo:core/Int";
 import Order "mo:core/Order";
+
+
 
 actor {
   // Access control state
@@ -115,7 +119,6 @@ actor {
     principalMap.add(caller, trimmedNickname);
   };
 
-  // Changing a nickname (NEW function)
   public shared ({ caller }) func changeNickname(newNickname : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Must be authenticated to change nickname");
@@ -130,7 +133,6 @@ actor {
       Runtime.trap("Nickname already exists, choose a new one");
     };
 
-    // Remove old nickname from nicknameMap if it exists
     switch (principalMap.get(caller)) {
       case (?oldNickname) {
         nicknameMap.remove(oldNickname);
@@ -138,7 +140,6 @@ actor {
       case (null) {};
     };
 
-    // Add new nickname to both maps
     nicknameMap.add(trimmedNickname, caller);
     principalMap.add(caller, trimmedNickname);
   };
@@ -157,7 +158,6 @@ actor {
 
   // ===================== Score Submission (User Access Required) =====================
 
-  // Only authenticated users can submit new high scores if they beat their previous best
   public shared ({ caller }) func submitScore(finalScore : Nat) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Must be authenticated to submit score");
@@ -175,7 +175,6 @@ actor {
     };
   };
 
-  // Only authenticated users can submit new weekly high scores if they beat their previous best
   public shared ({ caller }) func submitWeeklyScore(finalScore : Nat) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Must be authenticated to submit weekly score");
@@ -195,7 +194,6 @@ actor {
 
   // ===================== Leaderboard Queries (Public Access) =====================
 
-  // Anyone can view top 10 scores (including guests)
   public query func getTopScores() : async [LeaderboardEntry] {
     let sortedEntries = allTimeHighScore.toArray().sort(func(a, b) { natCompare(a.1, b.1) });
 
@@ -214,7 +212,6 @@ actor {
     entries.sliceToArray(0, 10);
   };
 
-  // Anyone can view weekly top 10 scores (including guests)
   public query func getWeeklyTopScores() : async [LeaderboardEntry] {
     let sortedEntries = weeklyScore.toArray().sort(func(a, b) { natCompare(a.1, b.1) });
 
@@ -233,7 +230,6 @@ actor {
     entries.sliceToArray(0, 10);
   };
 
-  // Anyone can view all-time leaderboard (including guests)
   public query func getLeaderboard() : async [LeaderboardEntry] {
     let sortedEntries = allTimeHighScore.toArray().sort(func(a, b) { natCompare(a.1, b.1) });
 
@@ -248,7 +244,6 @@ actor {
     );
   };
 
-  // Anyone can view weekly leaderboard (including guests)
   public query func getWeeklyLeaderboard() : async [LeaderboardEntry] {
     let sortedEntries = weeklyScore.toArray().sort(func(a, b) { natCompare(a.1, b.1) });
 
@@ -294,5 +289,213 @@ actor {
       };
     };
     ?mostRecent;
+  };
+
+  // ===================== Chat System (NEW) =====================
+
+  type ChatMessage = {
+    id : Nat;
+    authorPrincipal : Principal;
+    authorNickname : Text;
+    text : Text;
+    timestamp : Time.Time;
+    reactions : Map.Map<Text, List.List<Principal>>;
+  };
+
+  let chatMessages = Map.empty<Nat, ChatMessage>();
+  var nextMessageId : Nat = 0;
+
+  // Post a new chat message (authenticated users only)
+  public shared ({ caller }) func postChatMessage(text : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Must be authenticated to post messages");
+    };
+
+    let trimmedText = text.trim(#char(' '));
+    if (trimmedText.size() == 0 or trimmedText.size() > 500) {
+      Runtime.trap("Message cannot be empty or exceed 500 characters");
+    };
+
+    let authorNickname = switch (principalMap.get(caller)) {
+      case (?nickname) { nickname };
+      case (null) {
+        Runtime.trap("You must set a nickname before posting messages");
+      };
+    };
+
+    let reactions = Map.empty<Text, List.List<Principal>>();
+
+    let message : ChatMessage = {
+      id = nextMessageId;
+      authorPrincipal = caller;
+      authorNickname;
+      text = trimmedText;
+      timestamp = Time.now();
+      reactions;
+    };
+
+    chatMessages.add(nextMessageId, message);
+    nextMessageId += 1;
+  };
+
+  // Get the 50 most recent messages
+  public query func getChatMessages() : async [ {
+    id : Nat;
+    authorNickname : Text;
+    text : Text;
+    timestamp : Time.Time;
+    reactions : [(Text, Nat)];
+  } ] {
+    let messageArray = chatMessages.values().toArray();
+    let sortedMessages = messageArray.sort(
+      func(a, b) {
+        Int.compare(b.timestamp, a.timestamp);
+      }
+    );
+
+    let limitedMessages = if (sortedMessages.size() <= 50) {
+      sortedMessages;
+    } else {
+      sortedMessages.sliceToArray(0, 50);
+    };
+
+    limitedMessages.map(
+      func(msg) {
+        let reactionsArray = msg.reactions.toArray().map(
+          func((emoji, principals)) {
+            (emoji, principals.size());
+          }
+        );
+        {
+          id = msg.id;
+          authorNickname = msg.authorNickname;
+          text = msg.text;
+          timestamp = msg.timestamp;
+          reactions = reactionsArray;
+        };
+      }
+    );
+  };
+
+  // Delete own message (authenticated users only)
+  public shared ({ caller }) func deleteChatMessage(id : Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Must be authenticated to delete messages");
+    };
+
+    switch (chatMessages.get(id)) {
+      case (?message) {
+        if (message.authorPrincipal != caller) {
+          Runtime.trap("Unauthorized: You can only delete your own messages");
+        };
+        chatMessages.remove(id);
+      };
+      case (null) {
+        Runtime.trap("Message not found");
+      };
+    };
+  };
+
+  // Moderator delete (password-protected)
+  public shared ({ caller }) func moderatorDeleteMessage(id : Nat, password : Text) : async () {
+    if (password != "bittybittywhatwhat") {
+      Runtime.trap("Unauthorized: Invalid moderator password");
+    };
+
+    if (not chatMessages.containsKey(id)) {
+      Runtime.trap("Message not found");
+    };
+
+    chatMessages.remove(id);
+  };
+
+  // Add reaction
+  public shared ({ caller }) func addReaction(messageId : Nat, emoji : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Must be authenticated to add reactions");
+    };
+
+    switch (chatMessages.get(messageId)) {
+      case (?message) {
+        if (message.reactions.size() >= 10 and not message.reactions.containsKey(emoji)) {
+          Runtime.trap("Maximum of 10 different emojis per message");
+        };
+
+        let updatedReactions = message.reactions.map<Text, List.List<Principal>, List.List<Principal>>(
+          func(emojiKey, principals) {
+            if (emojiKey == emoji) {
+              if (principals.any(func(p) { p == caller })) {
+                return principals;
+              };
+              let newPrincipals = List.empty<Principal>();
+              for (principal in principals.values()) {
+                newPrincipals.add(principal);
+              };
+              newPrincipals.add(caller);
+              newPrincipals;
+            } else {
+              principals;
+            };
+          }
+        );
+
+        if (not message.reactions.containsKey(emoji)) {
+          let newList = List.empty<Principal>();
+          newList.add(caller);
+          updatedReactions.add(emoji, newList);
+        };
+
+        let updatedMessage = {
+          message with
+          reactions = updatedReactions
+        };
+
+        chatMessages.add(messageId, updatedMessage);
+      };
+      case (null) {
+        Runtime.trap("Message not found");
+      };
+    };
+  };
+
+  // Remove reaction
+  public shared ({ caller }) func removeReaction(messageId : Nat, emoji : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Must be authenticated to remove reactions");
+    };
+
+    switch (chatMessages.get(messageId)) {
+      case (?message) {
+        switch (message.reactions.get(emoji)) {
+          case (?principals) {
+            let updatedPrincipals = List.empty<Principal>();
+            for (principal in principals.values()) {
+              if (principal != caller) {
+                updatedPrincipals.add(principal);
+              };
+            };
+
+            let updatedReactions = message.reactions.map<Text, List.List<Principal>, List.List<Principal>>(
+              func(k, v) {
+                if (k == emoji) { return updatedPrincipals };
+                v;
+              }
+            );
+
+            let updatedMessage = {
+              message with
+              reactions = updatedReactions
+            };
+            chatMessages.add(messageId, updatedMessage);
+          };
+          case (null) {
+            Runtime.trap("No reactions for this emoji");
+          };
+        };
+      };
+      case (null) {
+        Runtime.trap("Message not found");
+      };
+    };
   };
 };

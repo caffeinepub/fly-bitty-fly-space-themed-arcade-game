@@ -43,11 +43,25 @@ export interface _SERVICE {
     _CaffeineStorageRefillResult
   >,
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
+  'addReaction' : ActorMethod<[bigint, string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'changeNickname' : ActorMethod<[string], undefined>,
+  'deleteChatMessage' : ActorMethod<[bigint], undefined>,
   'getCallerNickname' : ActorMethod<[], [] | [string]>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getChatMessages' : ActorMethod<
+    [],
+    Array<
+      {
+        'id' : bigint,
+        'authorNickname' : string,
+        'text' : string,
+        'timestamp' : Time,
+        'reactions' : Array<[string, bigint]>,
+      }
+    >
+  >,
   'getLastWeeklyReset' : ActorMethod<[], [] | [Time]>,
   'getLeaderboard' : ActorMethod<[], Array<LeaderboardEntry>>,
   'getTopScores' : ActorMethod<[], Array<LeaderboardEntry>>,
@@ -56,6 +70,9 @@ export interface _SERVICE {
   'getWeeklyTopScores' : ActorMethod<[], Array<LeaderboardEntry>>,
   'initializeAccessControl' : ActorMethod<[], undefined>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'moderatorDeleteMessage' : ActorMethod<[bigint, string], undefined>,
+  'postChatMessage' : ActorMethod<[string], undefined>,
+  'removeReaction' : ActorMethod<[bigint, string], undefined>,
   'resetWeeklyScores' : ActorMethod<[], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'saveNickname' : ActorMethod<[string], undefined>,

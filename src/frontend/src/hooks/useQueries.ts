@@ -152,6 +152,110 @@ export function useChangeNickname() {
   });
 }
 
+// Chat Queries
+export function useGetChatMessages() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<
+    Array<{
+      id: bigint;
+      authorNickname: string;
+      text: string;
+      timestamp: bigint;
+      reactions: Array<[string, bigint]>;
+    }>
+  >({
+    queryKey: ["chatMessages"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getChatMessages();
+    },
+    enabled: !!actor && !actorFetching,
+    refetchInterval: 10000,
+  });
+}
+
+export function usePostChatMessage() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (text: string) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.postChatMessage(text);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chatMessages"] });
+    },
+  });
+}
+
+export function useDeleteChatMessage() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.deleteChatMessage(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chatMessages"] });
+    },
+  });
+}
+
+export function useModeratorDeleteMessage() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, password }: { id: bigint; password: string }) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.moderatorDeleteMessage(id, password);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chatMessages"] });
+    },
+  });
+}
+
+export function useAddReaction() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      messageId,
+      emoji,
+    }: { messageId: bigint; emoji: string }) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.addReaction(messageId, emoji);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chatMessages"] });
+    },
+  });
+}
+
+export function useRemoveReaction() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      messageId,
+      emoji,
+    }: { messageId: bigint; emoji: string }) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.removeReaction(messageId, emoji);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chatMessages"] });
+    },
+  });
+}
+
 // Full Leaderboard Queries (All scores)
 export function useGetLeaderboard() {
   const { actor, isFetching: actorFetching } = useActor();

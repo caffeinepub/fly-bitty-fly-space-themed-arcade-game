@@ -66,11 +66,11 @@ export default function LeaderboardPage({ onBack }: LeaderboardPageProps) {
 
   const topAllTime = (
     allTimeScores?.filter((e) => e.nickname && e.nickname.trim() !== "") ?? []
-  ).slice(0, 10);
+  ).slice(0, 25);
 
   const topWeekly = (
     weeklyScores?.filter((e) => e.nickname && e.nickname.trim() !== "") ?? []
-  ).slice(0, 10);
+  ).slice(0, 25);
 
   const handleTabSwitch = (tab: ActiveTab) => {
     if (tab === activeTab || isAnimating) return;
@@ -117,7 +117,10 @@ export default function LeaderboardPage({ onBack }: LeaderboardPageProps) {
   const scores = activeTab === "alltime" ? topAllTime : topWeekly;
 
   return (
-    <div className="relative w-full min-h-screen overflow-y-auto">
+    <div
+      className="relative w-full min-h-screen"
+      style={{ overflowY: "auto", WebkitOverflowScrolling: "touch" }}
+    >
       {/* Background */}
       <div
         className="fixed inset-0 bg-cover bg-center -z-10"
@@ -278,7 +281,7 @@ export default function LeaderboardPage({ onBack }: LeaderboardPageProps) {
                 </p>
               </div>
             ) : (
-              <ScrollArea className="h-[400px] w-full">
+              <ScrollArea className="h-[600px] w-full">
                 <div className="space-y-2 pr-4">
                   {scores.map((entry, index) => (
                     <div

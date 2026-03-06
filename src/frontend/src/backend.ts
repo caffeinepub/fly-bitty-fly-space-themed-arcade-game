@@ -121,11 +121,20 @@ export interface backendInterface {
     _caffeineStorageCreateCertificate(blobHash: string): Promise<_CaffeineStorageCreateCertificateResult>;
     _caffeineStorageRefillCashier(refillInformation: _CaffeineStorageRefillInformation | null): Promise<_CaffeineStorageRefillResult>;
     _caffeineStorageUpdateGatewayPrincipals(): Promise<void>;
+    addReaction(messageId: bigint, emoji: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     changeNickname(newNickname: string): Promise<void>;
+    deleteChatMessage(id: bigint): Promise<void>;
     getCallerNickname(): Promise<string | null>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    getChatMessages(): Promise<Array<{
+        id: bigint;
+        authorNickname: string;
+        text: string;
+        timestamp: Time;
+        reactions: Array<[string, bigint]>;
+    }>>;
     getLastWeeklyReset(): Promise<Time | null>;
     getLeaderboard(): Promise<Array<LeaderboardEntry>>;
     getTopScores(): Promise<Array<LeaderboardEntry>>;
@@ -134,6 +143,9 @@ export interface backendInterface {
     getWeeklyTopScores(): Promise<Array<LeaderboardEntry>>;
     initializeAccessControl(): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
+    moderatorDeleteMessage(id: bigint, password: string): Promise<void>;
+    postChatMessage(text: string): Promise<void>;
+    removeReaction(messageId: bigint, emoji: string): Promise<void>;
     resetWeeklyScores(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     saveNickname(nickname: string): Promise<void>;
@@ -228,6 +240,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async addReaction(arg0: bigint, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addReaction(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addReaction(arg0, arg1);
+            return result;
+        }
+    }
     async assignCallerUserRole(arg0: Principal, arg1: UserRole): Promise<void> {
         if (this.processError) {
             try {
@@ -253,6 +279,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.changeNickname(arg0);
+            return result;
+        }
+    }
+    async deleteChatMessage(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteChatMessage(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteChatMessage(arg0);
             return result;
         }
     }
@@ -296,6 +336,26 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getCallerUserRole();
             return from_candid_UserRole_n12(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getChatMessages(): Promise<Array<{
+        id: bigint;
+        authorNickname: string;
+        text: string;
+        timestamp: Time;
+        reactions: Array<[string, bigint]>;
+    }>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getChatMessages();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getChatMessages();
+            return result;
         }
     }
     async getLastWeeklyReset(): Promise<Time | null> {
@@ -407,6 +467,48 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.isCallerAdmin();
+            return result;
+        }
+    }
+    async moderatorDeleteMessage(arg0: bigint, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.moderatorDeleteMessage(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.moderatorDeleteMessage(arg0, arg1);
+            return result;
+        }
+    }
+    async postChatMessage(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.postChatMessage(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.postChatMessage(arg0);
+            return result;
+        }
+    }
+    async removeReaction(arg0: bigint, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.removeReaction(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.removeReaction(arg0, arg1);
             return result;
         }
     }
