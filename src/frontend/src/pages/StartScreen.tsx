@@ -105,7 +105,10 @@ export default function StartScreen({
   };
 
   return (
-    <div className="relative w-full min-h-screen overflow-y-auto">
+    <div
+      className="relative w-full min-h-screen"
+      style={{ overflowY: "auto", WebkitOverflowScrolling: "touch" }}
+    >
       {/* Background Image */}
       <div
         className="fixed inset-0 bg-cover bg-center -z-10"
@@ -155,7 +158,7 @@ export default function StartScreen({
       </div>
 
       {/* Scrollable Content */}
-      <div className="relative z-10 flex flex-col items-center gap-6 px-4 w-full max-w-6xl mx-auto py-8 pb-20">
+      <div className="relative z-10 flex flex-col items-center gap-6 px-4 w-full max-w-6xl mx-auto py-8 pb-32">
         <div className="text-center space-y-4 pt-4">
           <h1 className="text-5xl sm:text-6xl md:text-8xl font-black text-yellow-400 tracking-wider drop-shadow-[0_0_30px_rgba(250,204,21,0.8)] animate-pulse">
             FLY BITTY FLY

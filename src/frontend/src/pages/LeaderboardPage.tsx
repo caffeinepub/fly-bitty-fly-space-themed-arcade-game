@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   AlertCircle,
   ArrowLeft,
@@ -281,8 +280,14 @@ export default function LeaderboardPage({ onBack }: LeaderboardPageProps) {
                 </p>
               </div>
             ) : (
-              <ScrollArea className="h-[600px] w-full">
-                <div className="space-y-2 pr-4">
+              <div
+                style={{
+                  maxHeight: "calc(100vh - 340px)",
+                  overflowY: "auto",
+                  WebkitOverflowScrolling: "touch",
+                }}
+              >
+                <div className="space-y-2 pr-1">
                   {scores.map((entry, index) => (
                     <div
                       key={`${entry.nickname}-${index}`}
@@ -317,7 +322,7 @@ export default function LeaderboardPage({ onBack }: LeaderboardPageProps) {
                     </div>
                   ))}
                 </div>
-              </ScrollArea>
+              </div>
             )}
           </div>
         </div>
