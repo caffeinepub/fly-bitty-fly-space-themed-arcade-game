@@ -138,7 +138,7 @@ export default function StartScreen({
         ))}
       </div>
 
-      {/* Top Right Controls */}
+      {/* Top Right Controls - mute only */}
       <div className="fixed top-4 right-4 z-20 flex items-center gap-3">
         <Button
           onClick={onToggleMute}
@@ -154,7 +154,6 @@ export default function StartScreen({
             <Volume2 className="h-5 w-5" />
           )}
         </Button>
-        <LoginButton />
       </div>
 
       {/* Scrollable Content */}
@@ -178,6 +177,11 @@ export default function StartScreen({
           PLAY NOW
         </Button>
 
+        {/* Login button — sits directly under PLAY NOW */}
+        <div data-ocid="start.secondary_button">
+          <LoginButton />
+        </div>
+
         <Button
           onClick={() => setShowItemsList(true)}
           size="lg"
@@ -190,7 +194,7 @@ export default function StartScreen({
         <Button
           onClick={onNavigateLeaderboard}
           size="lg"
-          data-ocid="start.secondary_button"
+          data-ocid="start.leaderboard_button"
           className="text-xl sm:text-2xl px-8 sm:px-12 py-6 sm:py-8 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black font-black rounded-full shadow-2xl transform hover:scale-110 transition-all duration-200 border-4 border-yellow-300"
         >
           <Trophy className="mr-2 sm:mr-3 h-6 w-6 sm:h-8 sm:w-8" />

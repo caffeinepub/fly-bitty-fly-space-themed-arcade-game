@@ -178,6 +178,12 @@ export default function GameOverScreen({
     }
   };
 
+  const handleShareOnX = () => {
+    const tweetText = `I just scored ${score} points in Fly Bitty FLY! 🚀 @bittyicp BITTYONICP.com --> "Games" to play! #FlyBittyFly #BittyIcp #ICP`;
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   const getRankIcon = (index: number): React.ReactElement => {
     if (index === 0) return <Crown className="h-5 w-5 text-yellow-400" />;
     if (index === 1) return <Medal className="h-5 w-5 text-gray-300" />;
@@ -436,6 +442,15 @@ export default function GameOverScreen({
             >
               <RotateCcw className="mr-2 h-6 w-6" />
               Play Again
+            </Button>
+            <Button
+              onClick={handleShareOnX}
+              size="lg"
+              data-ocid="gameover.secondary_button"
+              className="w-full text-xl py-6 bg-black hover:bg-gray-900 text-white font-bold rounded-lg shadow-lg border-2 border-white/20 hover:border-white/40 transform hover:scale-105 transition-all flex items-center justify-center gap-3"
+            >
+              <span className="text-2xl font-black leading-none">𝕏</span>
+              SHARE ON X
             </Button>
             <Button
               onClick={onBackToStart}

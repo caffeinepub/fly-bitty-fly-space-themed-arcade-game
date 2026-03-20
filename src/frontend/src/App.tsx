@@ -92,7 +92,7 @@ function App() {
   };
 
   return (
-    <div className="w-full h-screen overflow-hidden">
+    <div className="w-full min-h-screen">
       {gameState === "start" && (
         <StartScreen
           onStart={handleStartGame}
